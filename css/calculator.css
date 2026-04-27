@@ -1,0 +1,463 @@
+/* Базовая страница */
+body {
+  background: #f8faf9;
+  color: #111827;
+}
+
+.page,
+.page-wrapper {
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 48px 0;
+  background: #f8faf9;
+}
+
+.page h1,
+.page-wrapper h1 {
+  margin-bottom: 16px;
+  color: #111827;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+.calculator-intro {
+  max-width: 760px;
+  margin-bottom: 24px;
+  color: #6b7280;
+  font-size: 17px;
+}
+
+.calculator-disclaimer {
+  margin-bottom: 24px;
+  padding: 16px 18px;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #059669;
+  border-radius: 14px;
+  background: #f8faf9;
+  color: #111827;
+}
+
+/* Общая сетка калькулятора */
+#mchs-calculator-root {
+  width: 100%;
+}
+
+.calculator {
+  display: grid;
+  gap: 20px;
+}
+
+/* Карточки секций */
+.calculator-section {
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+}
+
+.calculator-section-title {
+  position: relative;
+  margin: 0 0 18px;
+  padding-left: 14px;
+  color: #111827;
+  font-size: 22px;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.calculator-section-title::before {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  width: 4px;
+  border-radius: 999px;
+  background: #059669;
+  content: "";
+}
+
+/* Варианты выбора */
+.calculator-options {
+  display: grid;
+  gap: 12px;
+}
+
+.calculator-section > .calculator-options {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.calculator-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #111827;
+  cursor: pointer;
+  transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.calculator-option:hover {
+  border-color: #059669;
+  background: #f8faf9;
+  box-shadow: 0 8px 22px rgba(5, 150, 105, 0.08);
+}
+
+.calculator-option:has(input:checked) {
+  border-color: #059669;
+  background: #d1fae5;
+  box-shadow: 0 8px 22px rgba(5, 150, 105, 0.12);
+}
+
+.calculator-option input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #059669;
+  flex: 0 0 auto;
+}
+
+.calculator-option strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #111827;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+/* Группы нарушений */
+.calculator-group {
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #f8faf9;
+}
+
+.calculator-group + .calculator-group {
+  margin-top: 14px;
+}
+
+.calculator-group-title {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 0 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #d1fae5;
+  color: #064e3b;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.calculator-group .calculator-options {
+  grid-template-columns: 1fr;
+}
+
+.calculator-meta {
+  display: block;
+  margin-top: 4px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+/* Действия */
+.calculator-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.calculator-button {
+  min-height: 46px;
+  padding: 12px 20px;
+  border: 1px solid #10b981;
+  border-radius: 12px;
+  background: #10b981;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.calculator-button:hover {
+  border-color: #059669;
+  background: #059669;
+  box-shadow: 0 10px 22px rgba(5, 150, 105, 0.18);
+}
+
+.calculator-button:active {
+  transform: translateY(1px);
+}
+
+.calculator-button--secondary {
+  border-color: #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+}
+
+.calculator-button--secondary:hover {
+  border-color: #059669;
+  background: #f8faf9;
+  color: #047857;
+}
+
+/* Результат */
+.calculator-result {
+  min-height: 0;
+  border-radius: 16px;
+}
+
+.calculator-result:not(:empty) {
+  padding: 18px;
+  border: 1px solid #059669;
+  background: #f8faf9;
+}
+
+.calculator-result-card {
+  color: #111827;
+}
+
+.calculator-result-card ul {
+  margin: 0 0 16px;
+  padding-left: 20px;
+}
+
+.calculator-result-card li {
+  margin-bottom: 6px;
+  color: #111827;
+}
+
+/* Лид-форма */
+.result-lead-form {
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+  color: #111827;
+}
+
+.lead-form-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.44fr) minmax(0, 0.56fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.lead-form-info {
+  padding: 4px 0;
+}
+
+.lead-form-title {
+  margin: 0 0 12px;
+  color: #111827;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.lead-form-text {
+  margin: 0 0 18px;
+  color: #6b7280;
+  line-height: 1.55;
+}
+
+.lead-form-benefits {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lead-form-benefits li {
+  position: relative;
+  padding-left: 24px;
+  color: #111827;
+  line-height: 1.45;
+}
+
+.lead-form-benefits li::before {
+  position: absolute;
+  top: 0.58em;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #059669;
+  content: "";
+}
+
+.lead-form {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #f8faf9;
+}
+
+.lead-form-row {
+  display: grid;
+  gap: 7px;
+}
+
+.lead-form-label {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.lead-form-input,
+.lead-form-textarea {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.lead-form-input {
+  min-height: 46px;
+  padding: 11px 14px;
+}
+
+.lead-form-textarea {
+  min-height: 112px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+.lead-form-input::placeholder,
+.lead-form-textarea::placeholder {
+  color: #6b7280;
+  opacity: 0.85;
+}
+
+.lead-form-input:focus,
+.lead-form-textarea:focus {
+  border-color: #059669;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12);
+}
+
+.lead-form-button {
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 1px solid #10b981;
+  border-radius: 12px;
+  background: #10b981;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.lead-form-button:hover {
+  border-color: #047857;
+  background: #047857;
+  box-shadow: 0 10px 22px rgba(5, 150, 105, 0.18);
+}
+
+.lead-form-button:active {
+  transform: translateY(1px);
+}
+
+.lead-form-message {
+  display: none;
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.lead-form-message:not(:empty) {
+  display: block;
+}
+
+.lead-form-message[style*="059669"] {
+  border: 1px solid #10b981;
+  background: #d1fae5;
+}
+
+.lead-form-message[style*="b91c1c"] {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+}
+
+/* Адаптивность */
+@media (max-width: 900px) {
+  .lead-form-layout {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .lead-form-info {
+    padding: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .page,
+  .page-wrapper {
+    width: min(100% - 24px, 1200px);
+    padding: 24px 0;
+  }
+
+  .calculator-section {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .calculator-section-title {
+    font-size: 19px;
+  }
+
+  .calculator-section > .calculator-options {
+    grid-template-columns: 1fr;
+  }
+
+  .calculator-option {
+    padding: 13px 14px;
+  }
+
+  .calculator-actions {
+    flex-direction: column;
+  }
+
+  .calculator-button {
+    width: 100%;
+  }
+
+  .result-lead-form {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .lead-form-title {
+    font-size: 21px;
+  }
+
+  .lead-form {
+    padding: 16px;
+  }
+
+  .lead-form-button {
+    width: 100%;
+  }
+}
