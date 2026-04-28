@@ -1,6 +1,8 @@
 const initialState = {
   subjectId: null,
   hasPrescription: false,
+  prescriptionCount: 1,
+  singleInspection: null,
   hasRepeat: false,
   specialFireRegime: false,
   violations: [],
@@ -67,4 +69,18 @@ function setSubject(subjectId) {
 // Устанавливает дополнительные признаки расчета.
 function setModifier(key, value) {
   return updateState({ [key]: value });
+}
+
+// Устанавливает, связаны ли нарушения с одной проверкой МЧС.
+function setSingleInspection(value) {
+  return updateState({ singleInspection: value });
+}
+
+// Включает или выключает учет предписания и сбрасывает вложенный ответ при выключении.
+function setPrescription(value) {
+  return updateState({
+    hasPrescription: value,
+    prescriptionCount: value ? state.prescriptionCount : 1,
+    singleInspection: value ? state.singleInspection : null
+  });
 }

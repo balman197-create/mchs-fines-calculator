@@ -20,6 +20,15 @@ function renderFineRange(range) {
   `;
 }
 
+function renderNoAdministrativeFineMessage() {
+  return `
+    <p class="result-note">
+      Административная ответственность по ч. 6.1 ст. 20.4 КоАП РФ для данной категории лиц не предусмотрена —
+      возможна только уголовная ответственность по ст. 219 УК РФ.
+    </p>
+  `;
+}
+
 function renderViolationItems(items) {
   if (!items.length) {
     return '';
@@ -32,7 +41,7 @@ function renderViolationItems(items) {
       <p>${escapeResultHtml(item.description)}</p>
       <p class="result-meta">Квалификация для расчета: ${escapeResultHtml(item.scenarioLabel)}</p>
       <p class="result-meta">Норма: ${escapeResultHtml(item.scenarioArticle)}</p>
-      ${renderFineRange(item.fineRange)}
+      ${item.scenarioKey === '20.4_part6_1' && !item.fineRange ? renderNoAdministrativeFineMessage() : renderFineRange(item.fineRange)}
     </article>
   `).join('');
 
@@ -56,14 +65,36 @@ function renderMainBlock(result) {
   }
 
   const totalRange = result.mainBlock.totalRange;
+  const isDeathScenario = result.consequences.death === true;
+  const articlePartNoteText = isDeathScenario
+    ? 'ч. 2 ст. 219 УК РФ — нарушение требований пожарной безопасности, повлёкшее смерть человека по неосторожности'
+    : result.modifiers.hasPrescription === true && result.modifiers.prescriptionCount === 2
+    ? 'Основание: ч. 5 ст. 4.4 КоАП РФ — нарушения по одной части статьи в рамках одной проверки наказываются однократно; при двух проверках штраф назначается отдельно по каждой'
+    : 'Основание: ч. 5 ст. 4.4 КоАП РФ — нарушения, квалифицированные по одной части статьи в рамках одной проверки, образуют одно производство и наказываются однократно';
+  const articlePartNote = `<p class="result-note">${escapeResultHtml(articlePartNoteText)}</p>`;
+  const summaryHtml = isDeathScenario
+    ? `
+      <div class="result-fine-card result-fine-card--criminal">
+        <span class="result-fine-label">Уголовная ответственность</span>
+        <strong class="result-fine-value">лишение свободы до 5 лет</strong>
+      </div>
+    `
+    : totalRange
+    ? `
+      <div class="result-fine-card">
+        <span class="result-fine-label">Предварительный штраф</span>
+        <strong class="result-fine-value">от ${formatMoney(totalRange.min)} до ${formatMoney(totalRange.max)}</strong>
+      </div>
+    `
+    : result.mainBlock.scenarioKey === '20.4_part6_1'
+      ? renderNoAdministrativeFineMessage()
+      : '<p class="result-note">Для выбранного типа ответственности итоговый диапазон в упрощенной модели не определен.</p>';
 
   return `
     <section class="result-section">
       <h2 class="result-section-title">По выбранным нарушениям</h2>
-      <p class="result-summary">
-        По выбранным нарушениям ваш предварительный диапазон административной ответственности составляет
-        от ${formatMoney(totalRange.min)} до ${formatMoney(totalRange.max)}.
-      </p>
+      ${summaryHtml}
+      ${articlePartNote}
       ${renderViolationItems(items)}
     </section>
   `;
@@ -74,6 +105,14 @@ function renderPrescriptionBlock(result) {
 
   if (!block) {
     return '';
+  }
+
+  if (block.type === 'death_override') {
+    return `
+      <div class="prescription-note">
+        <span>Предписание (ст. 19.5 КоАП) при уголовном деле не применяется</span>
+      </div>
+    `;
   }
 
   return `
@@ -109,7 +148,7 @@ function renderRepeatBlock(result) {
 function renderCriminalBlock(result) {
   const block = result.criminalBlock;
 
-  if (!block) {
+  if (!block || result.consequences.death === true) {
     return '';
   }
 
@@ -117,9 +156,9 @@ function renderCriminalBlock(result) {
     <section class="result-section result-warning">
       <h2 class="result-section-title">Возможна уголовная ответственность</h2>
       <p class="result-meta">Статья: ${escapeResultHtml(block.article)}</p>
-      <p><strong>${escapeResultHtml(block.title)}</strong></p>
-      <p>${escapeResultHtml(block.description)}</p>
-      <p>Этот блок носит информационный характер и не заменяет правовой анализ конкретной ситуации.</p>
+      <p><strong>Основание:</strong> ${escapeResultHtml(block.basis)}</p>
+      <p><strong>Возможное наказание:</strong> ${escapeResultHtml(block.punishment)}</p>
+      <p>${escapeResultHtml(block.disclaimer)}</p>
     </section>
   `;
 }
