@@ -63,6 +63,12 @@ function getSubjectSummary() {
   return subject ? subject.label : '';
 }
 
+function getObjectTypeSummary() {
+  const objectType = OBJECT_TYPES.find((item) => item.id === state.objectTypeId);
+
+  return objectType ? objectType.label : '';
+}
+
 function getModifiersSummary() {
   const selected = [];
 
@@ -109,6 +115,13 @@ function getAccordionSectionState(key) {
     return {
       isComplete: Boolean(state.subjectId),
       summary: getSubjectSummary()
+    };
+  }
+
+  if (key === 'objectType') {
+    return {
+      isComplete: Boolean(state.objectTypeId),
+      summary: getObjectTypeSummary()
     };
   }
 
@@ -163,7 +176,142 @@ function createSubjectSection() {
     `, { key: 'subject', isOpen: true, ...getAccordionSectionState('subject') });
 }
 
+function createObjectTypeSection() {
+  const optionsHtml = OBJECT_TYPES.map((objectType) => `
+    <label class="calculator-option">
+      <input
+        type="radio"
+        name="objectType"
+        value="${escapeHtml(objectType.id)}"
+        ${getCheckedAttribute(state.objectTypeId === objectType.id)}
+      >
+      <span>
+        <strong>${escapeHtml(objectType.label)}</strong>
+        <span class="calculator-meta">${escapeHtml(objectType.description)}</span>
+      </span>
+    </label>
+  `).join('');
+
+  return createAccordionSection('Тип объекта', `
+      <p class="calculator-meta">Выберите тип объекта, на котором МЧС проводило проверку</p>
+      <div class="calculator-options">
+        ${optionsHtml}
+      </div>
+    `, { key: 'objectType', ...getAccordionSectionState('objectType') });
+}
+
+function getFirstUploadedPrescriptionFile() {
+  return state.prescriptionFiles.find(Boolean) || null;
+}
+
+function createPrescriptionParseDebugBlock() {
+  if (!hasUploadedPrescriptionFiles() || state.prescriptionReadStatus === 'idle') {
+    return '';
+  }
+
+  const result = state.prescriptionParseResult;
+  const error = state.prescriptionParseError;
+  const statusLabels = {
+    reading: 'PDF читается',
+    success: 'PDF прочитан',
+    error: 'PDF не удалось прочитать',
+    skipped: 'Автоматический разбор не запущен'
+  };
+  const violations = result && Array.isArray(result.violations) ? result.violations : [];
+  const violationsHtml = violations.slice(0, 3).map((violation) => `
+    <li class="calculator-pdf-debug-item">
+      ${violation.location ? `<span><strong>Место:</strong> ${escapeHtml(violation.location)}</span>` : ''}
+      <span><strong>Нарушение:</strong> ${escapeHtml(violation.violationText || 'Текст не выделен')}</span>
+      ${violation.deadline ? `<span><strong>Срок:</strong> ${escapeHtml(violation.deadline)}</span>` : ''}
+      <span><strong>Нормы:</strong> ${escapeHtml(violation.normRefs && violation.normRefs.length ? violation.normRefs.join(', ') : 'не найдены')}</span>
+    </li>
+  `).join('');
+
+  return `
+    <div class="calculator-pdf-debug">
+      <p class="calculator-pdf-debug-title">Технический разбор PDF</p>
+      <p><strong>Статус:</strong> ${escapeHtml(statusLabels[state.prescriptionReadStatus] || state.prescriptionReadStatus)}</p>
+      ${error ? `<p class="calculator-pdf-debug-error">${escapeHtml(error)}</p>` : ''}
+      ${result ? `
+        <dl class="calculator-pdf-debug-list">
+          <div>
+            <dt>Найден блок нарушений</dt>
+            <dd>${result.anchorFound ? 'да' : 'нет'}</dd>
+          </div>
+          <div>
+            <dt>Режим распознавания</dt>
+            <dd>${escapeHtml(result.parseMode)}</dd>
+          </div>
+          <div>
+            <dt>Найдено нарушений</dt>
+            <dd>${violations.length}</dd>
+          </div>
+        </dl>
+        ${violationsHtml ? `<ol class="calculator-pdf-debug-items">${violationsHtml}</ol>` : ''}
+      ` : ''}
+    </div>
+  `;
+}
+
+function createPrescriptionFilesUpload() {
+  if (!state.hasPrescription) {
+    return '';
+  }
+
+  const count = Number(state.prescriptionCount) || 1;
+  const fieldsHtml = Array.from({ length: count }, (_, index) => {
+    const file = state.prescriptionFiles[index];
+    const label = count > 1 ? `Загрузить предписание ${index + 1}` : 'Загрузить предписание';
+    const fileName = file ? file.name : 'Файл не выбран';
+    const fileStatusHtml = file
+      ? `
+        <div class="calculator-file-status">
+          <span class="calculator-file-status-label">Файл загружен</span>
+          <span class="calculator-file-status-name">${escapeHtml(file.name)}</span>
+          <span class="calculator-file-status-note">Документ сохранён и готов к следующему шагу.</span>
+          <button
+            class="calculator-file-remove"
+            type="button"
+            data-prescription-file-remove="${index}"
+          >
+            Удалить файл
+          </button>
+        </div>
+      `
+      : '';
+
+    return `
+      <div class="calculator-field calculator-file-field">
+        <span class="calculator-field-label">${escapeHtml(label)}</span>
+        <label class="calculator-file-picker">
+          <input
+            class="calculator-file-input"
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            data-prescription-file-input
+            data-prescription-file-index="${index}"
+          >
+          <span class="calculator-file-button">Выбрать файл</span>
+        </label>
+        <span class="calculator-meta">Поддерживаются PDF, JPG, JPEG, PNG</span>
+        <span class="calculator-file-name" data-prescription-file-name="${index}">${escapeHtml(fileName)}</span>
+        ${fileStatusHtml}
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="calculator-upload-block">
+      <p class="calculator-nested-title">Загрузка предписания</p>
+      <p class="calculator-meta">Если у вас есть файл предписания МЧС, вы можете загрузить его для последующего анализа</p>
+      ${fieldsHtml}
+      ${createPrescriptionParseDebugBlock()}
+    </div>
+  `;
+}
+
 function createModifiersSection() {
+  const isDocumentMode = hasUploadedPrescriptionFiles();
   const modifiers = [
     {
       key: 'hasRepeat',
@@ -224,8 +372,11 @@ function createModifiersSection() {
         <div class="calculator-options">
           ${prescriptionCountOptionsHtml}
         </div>
+        <div data-prescription-files-wrapper>
+          ${createPrescriptionFilesUpload()}
+        </div>
       </div>
-    `, { key: 'modifiers', ...getAccordionSectionState('modifiers') });
+    `, { key: 'modifiers', isOpen: isDocumentMode, ...getAccordionSectionState('modifiers') });
 }
 
 function createViolationsSection() {
@@ -294,6 +445,20 @@ function createConsequencesSection() {
     `, { key: 'consequences', ...getAccordionSectionState('consequences') });
 }
 
+function createDocumentModeNotice() {
+  return `
+    <section class="calculator-document-mode">
+      <h2 class="calculator-document-mode-title">Режим работы по документу</h2>
+      <p>
+        Вы загрузили предписание. Дальнейшие ручные поля скрыты: калькулятор будет работать в режиме документа.
+      </p>
+      <p class="calculator-document-mode-note">
+        Анализ содержимого файла пока не подключён, поэтому расчёт по документу будет добавлен отдельным шагом.
+      </p>
+    </section>
+  `;
+}
+
 function createCalculatorControls() {
   return `
     <div class="calculator-controls">
@@ -307,7 +472,7 @@ function createCalculatorControls() {
 }
 
 function hasRequiredFieldsForCalculation() {
-  return Boolean(state.subjectId && state.violations.length > 0);
+  return Boolean(state.subjectId && state.objectTypeId && state.violations.length > 0);
 }
 
 function renderRequiredFieldsPlaceholder() {
@@ -317,6 +482,13 @@ function renderRequiredFieldsPlaceholder() {
     missingFields.push({
       key: 'subject',
       label: 'Кто несёт ответственность'
+    });
+  }
+
+  if (!state.objectTypeId) {
+    missingFields.push({
+      key: 'objectType',
+      label: 'Тип объекта'
     });
   }
 
@@ -343,6 +515,21 @@ function renderRequiredFieldsPlaceholder() {
         ${missingFieldsHtml}
       </ul>
       <p class="result-validation-note">Остальные параметры влияют на точность, но не обязательны.</p>
+    </div>
+  `;
+}
+
+function renderDocumentModePlaceholder() {
+  return `
+    <div class="result-validation">
+      <p class="result-validation-title">Режим работы по документу</p>
+      <p>
+        Предписание загружено, но автоматический анализ файла пока не подключён.
+        Расчёт штрафов по содержимому документа будет добавлен следующим этапом.
+      </p>
+      <p class="result-validation-note">
+        Чтобы воспользоваться ручным расчётом сейчас, удалите загруженный файл предписания.
+      </p>
     </div>
   `;
 }
@@ -570,14 +757,128 @@ function initAccordionSections(container) {
   updateAccordionSectionHeaders(container);
 }
 
+function addPrescriptionFileEventListeners(container) {
+  container.querySelectorAll('[data-prescription-file-input]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const index = Number(input.dataset.prescriptionFileIndex);
+      const file = input.files[0] || null;
+
+      setPrescriptionFile(index, file);
+      renderCalculatorUI(container);
+    });
+  });
+
+  container.querySelectorAll('[data-prescription-file-remove]').forEach((button) => {
+    button.addEventListener('click', () => {
+      removePrescriptionFile(Number(button.dataset.prescriptionFileRemove));
+
+      renderCalculatorUI(container);
+    });
+  });
+}
+
+function renderPrescriptionFilesUpload(container) {
+  const wrapper = container.querySelector('[data-prescription-files-wrapper]');
+
+  if (!wrapper) {
+    return;
+  }
+
+  wrapper.innerHTML = createPrescriptionFilesUpload();
+  addPrescriptionFileEventListeners(container);
+  syncOpenAccordionHeights(container);
+}
+
+async function analyzeUploadedPrescriptionPdf(container) {
+  const renderFreshCalculatorUI = () => {
+    const freshContainer = document.getElementById('mchs-calculator-root');
+    if (freshContainer) renderCalculatorUI(freshContainer);
+  };
+  const file = getFirstUploadedPrescriptionFile();
+
+  if (!file) {
+    setPrescriptionParseState({
+      prescriptionReadStatus: 'error',
+      prescriptionParseResult: null,
+      prescriptionParseError: 'Файл предписания не найден.'
+    });
+    renderCalculatorUI(container);
+    return;
+  }
+
+  if (typeof isPdfFile !== 'function' || typeof readPdfText !== 'function') {
+    setPrescriptionParseState({
+      prescriptionReadStatus: 'error',
+      prescriptionParseResult: null,
+      prescriptionParseError: 'Модуль чтения PDF не подключен.'
+    });
+    renderCalculatorUI(container);
+    return;
+  }
+
+  if (typeof parsePrescriptionText !== 'function') {
+    setPrescriptionParseState({
+      prescriptionReadStatus: 'error',
+      prescriptionParseResult: null,
+      prescriptionParseError: 'Модуль разбора предписания не подключен.'
+    });
+    renderCalculatorUI(container);
+    return;
+  }
+
+  if (!isPdfFile(file)) {
+    setPrescriptionParseState({
+      prescriptionReadStatus: 'skipped',
+      prescriptionParseResult: null,
+      prescriptionParseError: 'Автоматический разбор сейчас работает только для PDF-файлов.'
+    });
+    renderCalculatorUI(container);
+    return;
+  }
+
+  setPrescriptionParseState({
+    prescriptionReadStatus: 'reading',
+    prescriptionParseResult: null,
+    prescriptionParseError: ''
+  });
+  renderFreshCalculatorUI();
+
+  try {
+    const rawText = await readPdfText(file);
+    const result = parsePrescriptionText(rawText, { sourceType: 'pdf' });
+    window._lastPrescriptionParseResult = result;
+
+    setPrescriptionParseState({
+      prescriptionReadStatus: 'success',
+      prescriptionParseResult: result,
+      prescriptionParseError: ''
+    });
+  } catch (error) {
+    setPrescriptionParseState({
+      prescriptionReadStatus: 'error',
+      prescriptionParseResult: null,
+      prescriptionParseError: error && error.message ? error.message : 'Не удалось прочитать PDF.'
+    });
+  }
+
+  renderFreshCalculatorUI();
+}
+
 function addCalculatorEventListeners(container) {
   const resultElement = container.querySelector('#calculator-result');
 
   initAccordionSections(container);
+  addPrescriptionFileEventListeners(container);
 
   container.querySelectorAll('input[name="subject"]').forEach((input) => {
     input.addEventListener('change', () => {
       setSubject(input.value);
+    });
+  });
+
+  container.querySelectorAll('input[name="objectType"]').forEach((input) => {
+    input.addEventListener('change', () => {
+      setObjectType(input.value);
     });
   });
 
@@ -586,6 +887,8 @@ function addCalculatorEventListeners(container) {
 
   if (prescriptionToggle && prescriptionCountQuestion) {
     prescriptionToggle.addEventListener('change', () => {
+      const wasDocumentMode = hasUploadedPrescriptionFiles();
+
       setPrescription(prescriptionToggle.checked);
 
       if (!prescriptionToggle.checked) {
@@ -594,14 +897,28 @@ function addCalculatorEventListeners(container) {
         });
       }
 
+      if (wasDocumentMode !== hasUploadedPrescriptionFiles()) {
+        renderCalculatorUI(container);
+        return;
+      }
+
+      renderPrescriptionFilesUpload(container);
       setNestedQuestionOpen(prescriptionCountQuestion, prescriptionToggle.checked);
     });
   }
 
   container.querySelectorAll('input[name="prescriptionCount"]').forEach((input) => {
     input.addEventListener('change', () => {
-      setModifier('prescriptionCount', Number(input.value));
-      syncOpenAccordionHeights(container);
+      const wasDocumentMode = hasUploadedPrescriptionFiles();
+
+      setPrescriptionCount(Number(input.value));
+
+      if (wasDocumentMode !== hasUploadedPrescriptionFiles()) {
+        renderCalculatorUI(container);
+        return;
+      }
+
+      renderPrescriptionFilesUpload(container);
     });
   });
 
@@ -623,7 +940,12 @@ function addCalculatorEventListeners(container) {
     });
   });
 
-  container.querySelector('[data-action="calculate"]').addEventListener('click', () => {
+  container.querySelector('[data-action="calculate"]').addEventListener('click', async () => {
+    if (hasUploadedPrescriptionFiles()) {
+      await analyzeUploadedPrescriptionPdf(container);
+      return;
+    }
+
     if (!hasRequiredFieldsForCalculation()) {
       resultElement.classList.add('calculator-result--validation');
       resultElement.innerHTML = renderRequiredFieldsPlaceholder();
@@ -658,12 +980,15 @@ function addCalculatorEventListeners(container) {
 }
 
 function renderCalculatorUI(container) {
+  const isDocumentMode = hasUploadedPrescriptionFiles();
+
   container.innerHTML = `
     <div class="calculator">
       ${createSubjectSection()}
+      ${createObjectTypeSection()}
       ${createModifiersSection()}
-      ${createViolationsSection()}
-      ${createConsequencesSection()}
+      ${isDocumentMode ? createDocumentModeNotice() : createViolationsSection()}
+      ${isDocumentMode ? '' : createConsequencesSection()}
       ${createCalculatorControls()}
     </div>
   `;

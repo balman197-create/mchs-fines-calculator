@@ -3,25 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор штрафов МЧС</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Калькулятор штрафов МЧС (MVP)</title>
   <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/calculator.css">
   <link rel="stylesheet" href="css/result.css">
 </head>
 <body>
   <main class="page">
-    <h1>Калькулятор штрафов МЧС</h1>
+    <h1>Калькулятор штрафов МЧС (MVP)</h1>
     <div id="mchs-calculator-root"></div>
   </main>
 
   <script src="js/data.js"></script>
   <script src="js/state.js"></script>
-  <script src="js/ui.js"></script>
   <script src="js/calculator.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
+  <script src="js/pdf-reader.js"></script>
+  <script src="js/prescription-parser.js"></script>
   <script src="js/result.js"></script>
+  <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
