@@ -399,10 +399,10 @@ const BASE_FINE_MATRIX = {
     article: 'ч. 1 ст. 20.4 КоАП РФ',
     label: 'Базовое нарушение требований пожарной безопасности',
     fines: {
-      physical: { min: 2000, max: 3000 },
-      official: { min: 6000, max: 15000 },
-      entrepreneur: { min: 20000, max: 30000 },
-      legal: { min: 150000, max: 200000 }
+      physical: { min: 5000, max: 15000 },
+      official: { min: 20000, max: 30000 },
+      entrepreneur: { min: 40000, max: 60000 },
+      legal: { min: 300000, max: 400000 }
     }
   },
   '20.4_part2': {

@@ -1,33 +1,82 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Калькулятор штрафов МЧС (MVP)</title>
-  <link rel="stylesheet" href="css/reset.css">
-  <link rel="stylesheet" href="css/calculator.css">
-  <link rel="stylesheet" href="css/result.css">
-</head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор штрафов МЧС 2026 — штрафы по ст. 20.4 КоАП, ППР 1479</title>
+    <meta name="description" content="Калькулятор штрафов МЧС 2026. Рассчитайте штраф по ст. 20.4 КоАП РФ за нарушение пожарной безопасности: юрлица — от 300 000 до 400 000 руб., ИП — от 40 000 до 60 000 руб., должностные лица — от 20 000 до 30 000 руб.">
+    <meta name="keywords" content="калькулятор штрафов МЧС, штрафы за нарушение пожарной безопасности 2026, штраф по статье 20.4 КоАП, штраф за нарушение ППР 1479, штрафы МЧС для юридических лиц 2026, административная ответственность за нарушение пожарной безопасности, штраф МЧС для ИП, штраф за предписание МЧС">
+    <meta property="og:title" content="Калькулятор штрафов МЧС 2026">
+    <meta property="og:description" content="Рассчитайте штраф за нарушение пожарной безопасности по ст. 20.4 КоАП для юрлиц, ИП и должностных лиц.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://balman197-create.github.io/mchs-fines-calculator/">
+    <meta property="og:locale" content="ru_RU">
+    <link rel="canonical" href="https://balman197-create.github.io/mchs-fines-calculator/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/calculator.css">
+    <link rel="stylesheet" href="css/result.css">
+  </head>
 <body>
   <main class="page">
-    <h1>Калькулятор штрафов МЧС (MVP)</h1>
+    <h1>Калькулятор штрафов МЧС</h1>
     <div id="mchs-calculator-root"></div>
   </main>
 
   <script src="js/data.js"></script>
   <script src="js/state.js"></script>
   <script src="js/calculator.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
-  <script>
-    if (window.pdfjsLib) {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
-  </script>
-  <script src="js/pdf-reader.js"></script>
-  <script src="js/prescription-parser.js"></script>
   <script src="js/result.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "Калькулятор штрафов МЧС",
+          "url": "https://balman197-create.github.io/mchs-fines-calculator/",
+          "description": "Онлайн-калькулятор для расчёта административных штрафов МЧС за нарушения пожарной безопасности по ст. 20.4 КоАП РФ и ППР 1479",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Any",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "RUB" },
+          "inLanguage": "ru"
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Какие штрафы за нарушение пожарной безопасности в 2026 году?",
+              "acceptedAnswer": { "@type": "Answer", "text": "По ч. 1 ст. 20.4 КоАП РФ: для граждан — от 5 000 до 15 000 рублей, для должностных лиц — от 20 000 до 30 000 рублей, для ИП — от 40 000 до 60 000 рублей, для юридических лиц — от 300 000 до 400 000 рублей." }
+            },
+            {
+              "@type": "Question",
+              "name": "Какой штраф по статье 20.4 КоАП РФ?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Ст. 20.4 КоАП РФ — нарушение требований пожарной безопасности. Ч. 1: граждане — 5 000–15 000 руб., должностные лица — 20 000–30 000 руб., ИП — 40 000–60 000 руб., юридические лица — 300 000–400 000 рублей." }
+            },
+            {
+              "@type": "Question",
+              "name": "Какой штраф за нарушение ППР 1479?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Нарушение Правил противопожарного режима (ППР 1479) квалифицируется по ст. 20.4 КоАП РФ. Для юридических лиц — от 300 000 до 400 000 рублей, для должностных лиц — от 20 000 до 30 000 рублей." }
+            },
+            {
+              "@type": "Question",
+              "name": "Какой штраф МЧС для ИП?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Для ИП штраф по ч. 1 ст. 20.4 КоАП РФ составляет от 40 000 до 60 000 рублей." }
+            },
+            {
+              "@type": "Question",
+              "name": "Какой штраф за неисполнение предписания МЧС?",
+              "acceptedAnswer": { "@type": "Answer", "text": "За невыполнение предписания МЧС по ст. 19.5 КоАП РФ: для должностных лиц — от 1 000 до 2 000 рублей, для юрлиц — от 10 000 до 20 000 рублей." }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
 </body>
 </html>
